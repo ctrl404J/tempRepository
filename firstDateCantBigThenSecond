@@ -1,0 +1,48 @@
+네, 두 날짜를 비교하여 앞의 날짜가 뒤의 날짜보다 나중이면 안된다는 유효성 검사를 하려면 다음과 같이 할 수 있습니다.
+//--------------------------------------------------------
+// 날짜 형식을 정의합니다.
+private static final String DATE_PATTERN = "yyyy-MM-dd";
+
+// 시작 날짜 입력 TextField를 정의합니다.
+private final TextField<String> startDateField = new TextField<>("startDateField", new Model<String>());
+
+// 종료 날짜 입력 TextField를 정의합니다.
+private final TextField<String> endDateField = new TextField<>("endDateField", new Model<String>());
+
+// FeedbackPanel을 정의합니다.
+private final FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
+
+public MyPage() {
+    // 익명 클래스를 사용하여 Validator를 정의합니다.
+    startDateField.add(new IValidator<String>() {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void validate(IValidatable<String> validatable) {
+            final String startDateString = validatable.getValue();
+            final String endDateString = endDateField.getValue();
+
+            if (startDateString == null || startDateString.trim().isEmpty() ||
+                endDateString == null || endDateString.trim().isEmpty()) {
+                validatable.error(new ValidationError().addKey("date.required"));
+            } else {
+                try {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
+                    Date startDate = dateFormat.parse(startDateString);
+                    Date endDate = dateFormat.parse(endDateString);
+
+                    if (startDate.after(endDate)) {
+                        validatable.error(new ValidationError().addKey("date.range.invalid"));
+                    }
+                } catch (ParseException e) {
+                    validatable.error(new ValidationError().addKey("date.invalid"));
+                }
+            }
+        }
+    });
+
+    startDateField.setLabel(new Model<String>("시작 날짜"));
+    endDateField.setLabel(new Model<String>("종료 날짜"));
+    add(startDateField, endDateField, feedbackPanel);
+}
+//--------------------------------------------------------
