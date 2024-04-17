@@ -1,0 +1,36 @@
+구체적인 날짜 형식을 지정하지 않고 입력된 문자열이 날짜인지 여부만을 검사하려면 다음과 같이 할 수 있습니다:
+
+//----------------------------------------------------------------------
+// 날짜 입력 TextField를 정의합니다.
+private final TextField<String> dateField = new TextField<>("dateField", new Model<String>());
+
+// FeedbackPanel을 정의합니다.
+private final FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
+
+public MyPage() {
+    // 익명 클래스를 사용하여 Validator를 정의합니다.
+    dateField.add(new IValidator<String>() {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void validate(IValidatable<String> validatable) {
+            final String dateString = validatable.getValue();
+            if (dateString == null || dateString.trim().isEmpty()) {
+                validatable.error(new ValidationError().addKey("date.required"));
+            } else {
+                try {
+                    // 날짜 형식을 지정하지 않고, 문자열을 Date 객체로 파싱합니다.
+                    new Date(dateString);
+                } catch (IllegalArgumentException e) {
+                    // 날짜 형식이 잘못된 경우 에러 메시지를 설정합니다.
+                    validatable.error(new ValidationError().addKey("date.invalid"));
+                }
+            }
+        }
+    });
+
+    dateField.setLabel(new Model<String>("날짜"));
+    add(dateField);
+    add(feedbackPanel);
+}
+//----------------------------------------------------------------------
