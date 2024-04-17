@@ -1,0 +1,75 @@
+// -------------------------------------------------------------
+// 날짜 형식을 정의합니다.
+private static final String DATE_PATTERN = "yyyy-MM-dd";
+
+// 날짜 Validator 클래스를 정의합니다.
+private class DateValidator implements IValidator<String> {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public void validate(IValidatable<String> validatable) {
+        final String dateString = validatable.getValue();
+        if (dateString == null || dateString.trim().isEmpty()) {
+            // 날짜가 입력되지 않은 경우 에러 메시지를 설정합니다.
+            validatable.error(new ValidationError().addKey("date.required"));
+        } else {
+            try {
+                // 입력된 날짜 문자열을 SimpleDateFormat으로 파싱합니다.
+                new SimpleDateFormat(DATE_PATTERN).parse(dateString);
+            } catch (ParseException e) {
+                // 날짜 형식이 잘못된 경우 에러 메시지를 설정합니다.
+                validatable.error(new ValidationError().addKey("date.invalid"));
+            }
+        }
+    }
+}
+
+// 날짜 입력 TextField를 정의합니다.
+private final TextField<String> dateField = new TextField<>("dateField", new Model<String>());
+
+// FeedbackPanel을 정의합니다.
+private final FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
+
+// 생성자에서 Validator와 FeedbackPanel을 설정합니다.
+public MyPage() {
+    dateField.add(new DateValidator());
+    dateField.setLabel(new Model<String>("날짜"));
+    add(dateField);
+    add(feedbackPanel);
+}
+// -------------------------------------------------------------
+// -------------------------------------------------------------
+// 날짜 형식을 정의합니다.
+private static final String DATE_PATTERN = "yyyy-MM-dd";
+
+// 날짜 입력 TextField를 정의합니다.
+private final TextField<String> dateField = new TextField<>("dateField", new Model<String>());
+
+// FeedbackPanel을 정의합니다.
+private final FeedbackPanel feedbackPanel = new FeedbackPanel("feedbackPanel");
+
+public MyPage() {
+    // 익명 클래스를 사용하여 Validator를 정의합니다.
+    dateField.add(new IValidator<String>() {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void validate(IValidatable<String> validatable) {
+            final String dateString = validatable.getValue();
+            if (dateString == null || dateString.trim().isEmpty()) {
+                validatable.error(new ValidationError().addKey("date.required"));
+            } else {
+                try {
+                    new SimpleDateFormat(DATE_PATTERN).parse(dateString);
+                } catch (ParseException e) {
+                    validatable.error(new ValidationError().addKey("date.invalid"));
+                }
+            }
+        }
+    });
+
+    dateField.setLabel(new Model<String>("날짜"));
+    add(dateField);
+    add(feedbackPanel);
+}
+// -------------------------------------------------------------
